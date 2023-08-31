@@ -1,0 +1,17 @@
+VERSION 0.7
+
+FROM python:alpine3.18
+WORKDIR /app
+
+build:
+    COPY example ./example
+    COPY setup.py .
+    RUN python setup.py sdist
+    SAVE ARTIFACT dist/example-0.0.1.tar.gz
+
+docker:
+    COPY +build/example-0.0.1.tar.gz .
+    RUN python -m pip install ./example-0.0.1.tar.gz
+    ENTRYPOINT ["hello"]
+    SAVE IMAGE py-example:latest
+
