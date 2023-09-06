@@ -7,11 +7,21 @@ build:
     COPY example ./example
     COPY setup.py .
     RUN python setup.py sdist
-    SAVE ARTIFACT dist/example-0.0.1.tar.gz
+    SAVE ARTIFACT dist/example-0.0.1.tar.gz AS LOCAL local-output/example.tar.gz
 
 docker:
     COPY +build/example-0.0.1.tar.gz .
     RUN python -m pip install ./example-0.0.1.tar.gz
     ENTRYPOINT ["hello"]
-    SAVE IMAGE py-example:latest
+    ARG tag="latest"
+    SAVE IMAGE --push my-registry.com/repo/py-example:$tag
+
+all:
+    ARG tag
+    BUILD +build
+    BUILD +docker --tag="$tag"
+
+test-builtin-args:
+    ARG USERARCH
+    RUN echo $USERARCH
 
